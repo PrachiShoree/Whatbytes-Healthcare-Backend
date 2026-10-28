@@ -1,0 +1,44 @@
+{
+  "info": {
+    "_postman_id": "4b1ecdb9-4e42-4fb7-aeb2-6aaf1b90d3b8",
+    "name": "Healthcare Backend API",
+    "description": "API test collection for the Django Healthcare Backend. Run Register and Login first; the access token is saved automatically after login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://127.0.0.1:8000"},
+    {"key": "access_token", "value": ""},
+    {"key": "refresh_token", "value": ""},
+    {"key": "patient_id", "value": "1"},
+    {"key": "doctor_id", "value": "1"},
+    {"key": "mapping_id", "value": "1"}
+  ],
+  "item": [
+    {"name": "API Root", "request": {"method": "GET", "url": "{{base_url}}/api/"}},
+    {"name": "Authentication", "item": [
+      {"name": "Register", "request": {"method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"name\": \"Demo User\",\n  \"email\": \"demo@example.com\",\n  \"password\": \"DemoStrongPass123!\"\n}"}, "url":"{{base_url}}/api/auth/register/"}},
+      {"name": "Login (saves tokens)", "event": [{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 200) {","  const data = pm.response.json();","  pm.collectionVariables.set('access_token', data.access);","  pm.collectionVariables.set('refresh_token', data.refresh);","}"]}}], "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"email\": \"demo@example.com\",\n  \"password\": \"DemoStrongPass123!\"\n}"},"url":"{{base_url}}/api/auth/login/"}},
+      {"name":"Refresh Token","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"refresh\": \"{{refresh_token}}\"\n}"},"url":"{{base_url}}/api/auth/token/refresh/"}}
+    ]},
+    {"name":"Patients","item":[
+      {"name":"Create Patient","event":[{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 201) pm.collectionVariables.set('patient_id', pm.response.json().id);"]}}],"request":{"method":"POST","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"full_name\": \"Aarav Sharma\",\n  \"age\": 35,\n  \"gender\": \"male\",\n  \"phone\": \"+91 9876543210\",\n  \"email\": \"aarav@example.com\",\n  \"address\": \"New Delhi\",\n  \"medical_history\": \"Optional notes\"\n}"},"url":"{{base_url}}/api/patients/"}},
+      {"name":"List My Patients","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/patients/"}},
+      {"name":"Get Patient","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/patients/{{patient_id}}/"}},
+      {"name":"Update Patient","request":{"method":"PUT","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"full_name\": \"Aarav Sharma\",\n  \"age\": 36,\n  \"gender\": \"male\",\n  \"phone\": \"+91 9876543210\",\n  \"email\": \"aarav@example.com\",\n  \"address\": \"New Delhi\",\n  \"medical_history\": \"Updated notes\"\n}"},"url":"{{base_url}}/api/patients/{{patient_id}}/"}},
+      {"name":"Delete Patient","request":{"method":"DELETE","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/patients/{{patient_id}}/"}}
+    ]},
+    {"name":"Doctors","item":[
+      {"name":"Create Doctor","event":[{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 201) pm.collectionVariables.set('doctor_id', pm.response.json().id);"]}}],"request":{"method":"POST","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"full_name\": \"Aditi Rao\",\n  \"specialization\": \"Cardiology\",\n  \"email\": \"aditi.rao@example.com\",\n  \"phone\": \"+91 9876543210\",\n  \"qualifications\": \"MBBS, MD\",\n  \"experience_years\": 8\n}"},"url":"{{base_url}}/api/doctors/"}},
+      {"name":"List Doctors","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/doctors/"}},
+      {"name":"Get Doctor","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/doctors/{{doctor_id}}/"}},
+      {"name":"Update Doctor","request":{"method":"PUT","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"full_name\": \"Aditi Rao\",\n  \"specialization\": \"Cardiology\",\n  \"email\": \"aditi.rao@example.com\",\n  \"phone\": \"+91 9876543210\",\n  \"qualifications\": \"MBBS, MD\",\n  \"experience_years\": 9\n}"},"url":"{{base_url}}/api/doctors/{{doctor_id}}/"}},
+      {"name":"Delete Doctor","request":{"method":"DELETE","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/doctors/{{doctor_id}}/"}}
+    ]},
+    {"name":"Patient-Doctor Mappings","item":[
+      {"name":"Assign Doctor to Patient","event":[{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 201) pm.collectionVariables.set('mapping_id', pm.response.json().id);"]}}],"request":{"method":"POST","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"patient\": {{patient_id}},\n  \"doctor\": {{doctor_id}}\n}"},"url":"{{base_url}}/api/mappings/"}},
+      {"name":"List My Mappings","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/mappings/"}},
+      {"name":"Get Mappings for Patient","request":{"method":"GET","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/mappings/{{patient_id}}/"}},
+      {"name":"Remove Mapping","request":{"method":"DELETE","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{access_token}}","type":"string"}]},"url":"{{base_url}}/api/mappings/{{mapping_id}}/"}}
+    ]}
+  ]
+}
